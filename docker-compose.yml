@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/reading_notes
+      - CORS_ORIGIN=http://localhost:5173
+      - PORT=3001
+      - UPLOAD_DIR=/app/uploads
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./server/uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_PROXY_TARGET=http://backend:3001
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - backend

@@ -5,6 +5,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import notesRouter from "./routes/notes.js";
 import messagesRouter from "./routes/messages.js";
+import adminRouter from "./routes/admin.js";
+
 import { PORT, CORS_ORIGIN, UPLOAD_DIR, pingDatabase } from "./db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,7 +26,7 @@ app.use(
     maxAge: "7d",
   })
 );
-
+app.use("/api/admin", adminRouter);
 app.get("/api/health", async (_req, res) => {
   try {
     await pingDatabase();

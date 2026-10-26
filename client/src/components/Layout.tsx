@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useI18n } from "../i18n";
 
 export default function Layout() {
-  const { t, lang, toggleLang } = useI18n();
+  const { t } = useI18n();
 
   const menus = [
     { to: "/", label: t("home"), end: true },
@@ -39,16 +39,6 @@ export default function Layout() {
                 </NavLink>
               ))}
             </nav>
-
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs font-medium text-ink/70 transition-colors hover:bg-accent-soft hover:text-accent"
-            >
-              <span className={lang === "zh" ? "text-accent" : ""}>中</span>
-              <span className="text-ink/30">/</span>
-              <span className={lang === "en" ? "text-accent" : ""}>EN</span>
-            </button>
           </div>
         </div>
       </header>

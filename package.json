@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "depd": "^2.0.0",
+    "express": "^5.3.0",
     "finalhandler": "^2.1.1",
+    "jsonwebtoken": "^9.0.3",
     "merge-descriptors": "^2.0.0",
     "pg-connection-string": "^2.14.1",
     "pg-pool": "^3.14.0",
@@ -10,5 +12,8 @@
     "pgpass": "^1.0.6",
     "send": "^1.2.1",
     "serve-static": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10"
   }
 }
