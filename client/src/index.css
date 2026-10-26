@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --color-paper: #faf6ee;
+  --color-ink: #2b2620;
+  --color-accent: #9a4a2c;
+  --color-accent-soft: #f1e1d6;
+  --color-line: #e6dccb;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* tag 颜色组 */
+.tag-1 { background: #fce7f3; color: #9f1239; }
+.tag-2 { background: #ddd6fe; color: #5b21b6; }
+.tag-3 { background: #bfdbfe; color: #1e3a8a; }
+.tag-4 { background: #bbf7d0; color: #14532d; }
+.tag-5 { background: #fef08a; color: #713f12; }
+.tag-6 { background: #fed7aa; color: #7c2d12; }
+.tag-7 { background: #fbcfe8; color: #831843; }
+.tag-8 { background: #a7f3d0; color: #064e3b; }
