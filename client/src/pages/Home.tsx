@@ -24,7 +24,6 @@ export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [total, setTotal] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [activeTag, setActiveTag] = useState("");
@@ -33,6 +32,10 @@ export default function Home() {
   const [error, setError] = useState("");
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  // ✅ 用 ref 跟踪 loadingMore 和 page，避免 loadMore 依赖它们导致反复重建
+  const loadingMoreRef = useRef(false);
+  const pageRef = useRef(1);
+
   const hasMore = notes.length < total;
 
   // 首次加载或搜索/筛选/语言切换时重置列表
@@ -40,7 +43,7 @@ export default function Home() {
     let cancelled = false;
     setLoading(true);
     setError("");
-    setPage(1);
+    pageRef.current = 1; // ✅ 重置 ref 中的页码
     api
       .listNotes({ search, page: 1, pageSize: PAGE_SIZE, tag: activeTag, lang })
       .then((data) => {
@@ -56,24 +59,29 @@ export default function Home() {
     };
   }, [search, activeTag, lang]);
 
+  // ✅ 把 loadFirst 返回的清理函数交给 useEffect
   useEffect(() => {
-    loadFirst();
+    return loadFirst();
   }, [loadFirst]);
 
   // 加载更多
   const loadMore = useCallback(() => {
-    if (loadingMore || !hasMore) return;
+    if (loadingMoreRef.current || !hasMore) return;
+    loadingMoreRef.current = true;
     setLoadingMore(true);
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
     api
       .listNotes({ search, page: nextPage, pageSize: PAGE_SIZE, tag: activeTag, lang })
       .then((data) => {
         setNotes((prev) => [...prev, ...data.items]);
-        setPage(nextPage);
+        pageRef.current = nextPage; // ✅ 只更新 ref，不再调用 setPage
       })
       .catch(() => {})
-      .finally(() => setLoadingMore(false));
-  }, [loadingMore, hasMore, page, search, activeTag, lang]);
+      .finally(() => {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      });
+  }, [hasMore, search, activeTag, lang]);
 
   // IntersectionObserver 自动触发加载更多
   useEffect(() => {
@@ -82,7 +90,7 @@ export default function Home() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMoreRef.current) {
           loadMore();
         }
       },
@@ -90,7 +98,7 @@ export default function Home() {
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, loading, loadingMore, loadMore]);
+  }, [hasMore, loading, loadMore]);
 
   function onSearch(e: FormEvent) {
     e.preventDefault();

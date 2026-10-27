@@ -1,12 +1,32 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { pool } from "./db.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
+function findSchemaSql(): string {
+  // 编译后：dist/schema.sql（build 脚本会复制）
+  const inDist = join(here, "schema.sql");
+  if (existsSync(inDist)) return inDist;
+  // 开发模式：src/schema.sql
+  const inSrc = join(here, "schema.sql");
+  if (existsSync(inSrc)) return inSrc;
+  // 兜底：向上查找
+  let dir = here;
+  for (let i = 0; i < 3; i++) {
+    const p = join(dir, "schema.sql");
+    if (existsSync(p)) return p;
+    const srcP = join(dir, "src", "schema.sql");
+    if (existsSync(srcP)) return srcP;
+    dir = dirname(dir);
+  }
+  throw new Error("schema.sql not found");
+}
+
 async function main() {
-  const sql = readFileSync(join(here, "schema.sql"), "utf8");
+  const sqlPath = findSchemaSql();
+  const sql = readFileSync(sqlPath, "utf8");
   await pool.query(sql);
 
   const { rows } = await pool.query("SELECT COUNT(*)::int AS n FROM notes");
