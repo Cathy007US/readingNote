@@ -60,18 +60,55 @@ export default function AdminNotes() {
         <Link to="/admin/notes/new" className="bg-blue-600 text-white px-4 py-2">发布笔记</Link>
       </div>
       <ul className="divide-y">
-        {notes.map((n) => (
-          <li key={n.id} className="py-3 flex justify-between gap-4">
-            <div>
-              <h3 className="font-semibold">{n.title}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2">{n.content}</p>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <Link to={`/admin/notes/${n.id}/edit`} className="text-blue-600">修改</Link>
-              <button onClick={() => remove(n.id)} className="text-red-600">删除</button>
-            </div>
-          </li>
-        ))}
+        {notes.map((n) => {
+          const isEnglishOriginal = n.source_lang === "en";
+          const title = isEnglishOriginal
+            ? n.title_en || n.title
+            : n.title || n.title_en;
+          const content = isEnglishOriginal
+            ? n.content_en || n.content
+            : n.content || n.content_en;
+
+          return (
+            <li key={n.id} className="py-3 flex justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-semibold">{title || "（无标题）"}</h3>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      isEnglishOriginal
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
+                  >
+                    {isEnglishOriginal ? "英文原文" : "中文原文"}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 line-clamp-2">
+                  {content ||
+                    (n.audio_url
+                      ? n.transcript?.trim()
+                        ? `文字稿：${n.transcript}`
+                        : "音频笔记（无文字稿）"
+                      : "")}
+                </p>
+                {n.audio_url && (
+                  <audio
+                    controls
+                    preload="metadata"
+                    className="mt-2 w-full max-w-md"
+                  >
+                    <source src={n.audio_url} />
+                  </audio>
+                )}
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Link to={`/admin/notes/${n.id}/edit`} className="text-blue-600">修改</Link>
+                <button onClick={() => remove(n.id)} className="text-red-600">删除</button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
       <div ref={sentinel} className="h-10" />
       {loading && <p>加载中...</p>}

@@ -1,5 +1,11 @@
-import type { Message, MessagesPage, Note, NoteInput, NotesPage } from "./types";
-import type { Lang } from "./i18n/translations";
+import type {
+  Message,
+  MessageStatus,
+  MessagesPage,
+  Note,
+  NoteInput,
+  NotesPage,
+} from "./types";
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -17,14 +23,13 @@ export const api = {
     page?: number;
     pageSize?: number;
     tag?: string;
-    lang?: Lang;
   }) {
     const qs = new URLSearchParams();
     if (params.search) qs.set("search", params.search);
     if (params.page) qs.set("page", String(params.page));
     if (params.pageSize) qs.set("pageSize", String(params.pageSize));
     if (params.tag) qs.set("tag", params.tag);
-    qs.set("lang", params.lang ?? "zh");
+    qs.set("lang", "zh");
     return request<NotesPage>(`/api/notes?${qs.toString()}`);
   },
 
@@ -108,22 +113,38 @@ export const adminApi = {
     return adminRequest<{ ok: boolean }>(`/api/notes/${id}`, { method: "DELETE" });
   },
 
-  listMessages(params: { page?: number; pageSize?: number; q?: string } = {}) {
+  listMessages(
+    params: {
+      page?: number;
+      pageSize?: number;
+      q?: string;
+      status?: MessageStatus | "all";
+    } = {}
+  ) {
     const qs = new URLSearchParams();
     if (params.page) qs.set("page", String(params.page));
     if (params.pageSize) qs.set("pageSize", String(params.pageSize));
     if (params.q) qs.set("q", params.q);
-    return adminRequest<MessagesPage>(`/api/messages?${qs.toString()}`);
+    if (params.status) qs.set("status", params.status);
+    return adminRequest<MessagesPage>(`/api/admin/messages?${qs.toString()}`);
+  },
+
+  updateMessageStatus(id: number | string, status: MessageStatus) {
+    return adminRequest<Message>(`/api/admin/messages/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
   },
 
   deleteMessage(id: number | string) {
-    return adminRequest<{ ok: boolean }>(`/api/messages/${id}`, { method: "DELETE" });
+    return adminRequest<{ ok: boolean }>(`/api/admin/messages/${id}`, {
+      method: "DELETE",
+    });
   },
 };
 
-export function formatDateTime(iso: string, lang: Lang = "zh"): string {
-  const locale = lang === "en" ? "en-US" : "zh-CN";
-  return new Date(iso).toLocaleString(locale, {
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("zh-CN", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

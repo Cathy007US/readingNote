@@ -1,12 +1,9 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useI18n } from "../i18n";
 
 export default function Layout() {
-  const { t } = useI18n();
-
   const menus = [
-    { to: "/", label: t("home"), end: true },
-    { to: "/messages", label: t("messages"), end: false },
+    { to: "/", label: "首页", end: true },
+    { to: "/messages", label: "留言", end: false },
   ];
 
   return (
@@ -15,9 +12,9 @@ export default function Layout() {
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center justify-between gap-4">
           <div>
             <h1 className="font-serif text-xl font-bold tracking-wide text-accent">
-              {t("siteName")}
+              Reading Notes
             </h1>
-            <p className="text-xs text-ink/60">{t("subtitle")}</p>
+            <p className="text-xs text-ink/60">读书笔记 · 思想沉淀</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -48,7 +45,8 @@ export default function Layout() {
       </main>
 
       <footer className="border-t border-line py-6 text-center text-xs text-ink/50">
-        {t("footer")}
+        读到的，想到的，都值得记下来。
+        <p className="mt-2">© {new Date().getFullYear()} Reading Notes · What you read and think is worth recording.</p>
       </footer>
     </div>
   );
